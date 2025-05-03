@@ -26,7 +26,7 @@ def app():
 
         # Get response from Gemini API
         with st.spinner("Aguarde..."):
-            gemini_response = get_gemini_response(user_message)
+            gemini_response = get_gemini_response(question=user_message, model="gemini-2.0-flash")
             st.session_state.messages.append({"role": "assistant", "content": gemini_response})
 
     for message in st.session_state.messages:
