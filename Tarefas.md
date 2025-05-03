@@ -1,5 +1,12 @@
 # Tarefas Iniciais para o TCC - CBMGO
 
+- [ ] - Arrumar conversas (ida e volta)
+- [ ] - Arrumar streaming
+- [ ] - Tentar mostrar pensamentos (?)
+- [ ] - Ajustar system prompt para responder com documentos
+- [ ] - Tentar passar qual documento está sendo utilizado
+
+
 ## 1. Pesquisa e Fundamentação Teórica
 - [ ] Realizar revisão bibliográfica sobre sistemas RAG (Retrieval-Augmented Generation)
 - [ ] Pesquisar trabalhos científicos sobre estratégias de fragmentação de documentos
