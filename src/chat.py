@@ -21,12 +21,21 @@ def get_gemini_response(messages, model="gemini-2.5-pro-preview-03-25"):
     if client is None:
         return "Error initializing Google GenAI client."
 
+    # Transform message roles based on model version (2.5 has a different api)
+    formatted_messages = []
+    for m in messages:
+        role = m["role"]
+        # For Gemini 2.5 models, convert "assistant" role to "model"
+        if "2.5" in model and role == "assistant":
+            role = "model"
+        formatted_messages.append({"role": role, "content": m["content"]})
+
     # Convert messages to the required format using types.Content and types.Part
     formatted_contents = [
         types.Content(
             role=m["role"],
             parts=[types.Part.from_text(text=m["content"])]
-        ) for m in messages
+        ) for m in formatted_messages
     ]
 
     system_instruction = types.Part.from_text(text="""
@@ -38,11 +47,11 @@ Sempre que possível, forneça exemplos práticos para ilustrar suas respostas.
 Caso não saiba a resposta, informe que não tem certeza e sugira que o usuário consulte um especialista ou fonte confiável.
 """)
 
-    response = client.models.generate_content(
+    stream = client.models.generate_content_stream(
         model=model,
         contents=formatted_contents,
         config=types.GenerateContentConfig(
             system_instruction=system_instruction,
         ),
     )
-    return response.text
+    return stream
