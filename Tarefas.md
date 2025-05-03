@@ -5,6 +5,7 @@
 - [ ] - Tentar mostrar pensamentos (?)
 - [ ] - Ajustar system prompt para responder com documentos
 - [ ] - Tentar passar qual documento está sendo utilizado
+- [ ] - Verificar API de Multi-turn conversations
 
 
 ## 1. Pesquisa e Fundamentação Teórica

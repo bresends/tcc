@@ -15,26 +15,34 @@ def initialize_google_genai():
         st.error(f"Error initializing Google GenAI: {e}")
         return None
 
-def get_gemini_response(question, model="gemini-2.5-pro-preview-03-25"):
+def get_gemini_response(messages, model="gemini-2.5-pro-preview-03-25"):
     client = initialize_google_genai()
 
     if client is None:
         return "Error initializing Google GenAI client."
 
-    response = client.models.generate_content(
-        model=model,
-        contents=question,
-        config=types.GenerateContentConfig(
-        system_instruction=[
-            types.Part.from_text(text="""
+    # Convert messages to the required format using types.Content and types.Part
+    formatted_contents = [
+        types.Content(
+            role=m["role"],
+            parts=[types.Part.from_text(text=m["content"])]
+        ) for m in messages
+    ]
+
+    system_instruction = types.Part.from_text(text="""
 Você é um ótimo assistente que ajuda a responder perguntas sobre normas técnicas do CBMGO (Corpo de Bombeiros Militar do Estado de Goiás).
 Você deve fornecer informações precisas e relevantes sobre as normas técnicas, incluindo detalhes sobre procedimentos, requisitos e melhores práticas.
 Além disso, você deve ser capaz de explicar conceitos complexos de forma simples e acessível, ajudando os usuários a entenderem melhor as normas e suas aplicações práticas.
 Você deve responder de forma clara e objetiva, utilizando uma linguagem simples e acessível.
 Sempre que possível, forneça exemplos práticos para ilustrar suas respostas.
 Caso não saiba a resposta, informe que não tem certeza e sugira que o usuário consulte um especialista ou fonte confiável.
-"""),
-            ],
+""")
+
+    response = client.models.generate_content(
+        model=model,
+        contents=formatted_contents,
+        config=types.GenerateContentConfig(
+            system_instruction=system_instruction,
         ),
     )
     return response.text
