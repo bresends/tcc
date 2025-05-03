@@ -7,28 +7,32 @@ def app():
         page_icon="📚",
     )
 
-    st.title("📚 Normas Técnicas Q&A")
+    st.title("📚 Normas Técnicas CBMGO - Q&A")
 
-    user_message = st.chat_input("Faça uma pergunta sobre as normas técnicas: ")
+    st.warning(body=
+        "Este Assistente Virtual foi treinado para responder perguntas sobre normas técnicas do CBMGO. Ele pode cometer falhas. Consulte as informações fornecidas com um especialista ou fonte confiável.",
+    )
+
+    user_message = st.chat_input("Faça uma pergunta sobre normas técnicas: ")
+
+    # Initialize session state for chat history
+    if "messages" not in st.session_state:
+        messages = [{"role": "assistant", "content": "Olá! Como posso ajudar você com normas técnicas?"}]
+        st.session_state["messages"] = messages
 
     if user_message:
-        if "messages" in st.session_state:
-            messages = st.session_state["messages"]
-        else:
-            messages = []
-            st.session_state["messages"] = messages
+        # Append user message to chat history
+        st.session_state.messages.append({"role": "user", "content": user_message})
 
-        messages.append({"user": "user", "text": user_message})
+        # Get response from Gemini API
+        with st.spinner("Aguarde..."):
+            gemini_response = get_gemini_response(user_message)
+            st.session_state.messages.append({"role": "assistant", "content": gemini_response})
 
-        # mensagem de resposta do assistant
-        response = get_gemini_response(user_message)
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
 
-        messages.append({"user": "assistant", "text": response})
-
-        for message in messages:
-            # colocar a mensagem do usuário na tela
-            with st.chat_message(message["user"]):
-                st.write(message["text"])
 
 if __name__ == "__main__":
     app()
