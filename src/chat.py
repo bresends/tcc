@@ -1,49 +1,37 @@
-import streamlit as st
-import google.genai as genai
-from dotenv import load_dotenv
 import os
-from google.genai import types
+import streamlit as st
+from dotenv import load_dotenv
 from prompt_loader import load_parsed_docs_prompt
-from langfuse.decorators import observe, langfuse_context
+from langfuse.openai import OpenAI
 
 load_dotenv()
 
-def initialize_google_genai():
-    try:
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            raise ValueError("API key not found in environment variables.")
-        return genai.Client(api_key=api_key)
-    except Exception as e:
-        st.error(f"Error initializing Google GenAI: {e}")
-        return None
-
-def get_gemini_response(messages, model="gemini-2.5-pro-exp-03-25"):
-    client = initialize_google_genai()
-
-    if client is None:
-        return "Error initializing Google GenAI client."
-
-    # Transform message roles based on model version (2.5 has a different api)
-    formatted_messages = []
-    for m in messages:
-        role = m["role"]
-        # For Gemini 2.5 models, convert "assistant" role to "model"
-        if "2.5" in model and role == "assistant":
-            role = "model"
-        formatted_messages.append({"role": role, "content": m["content"]})
-
-    # Convert messages to the required format using types.Content and types.Part
-    formatted_contents = [
-        types.Content(
-            role=m["role"],
-            parts=[types.Part.from_text(text=m["content"])]
-        ) for m in formatted_messages
+def check_env_vars():
+    REQUIRED_ENV_VARS = [
+    "LLM_API_KEY",
+    "LLM_BASE_URL",
+    "LANGFUSE_SECRET_KEY",
+    "LANGFUSE_PUBLIC_KEY",
+    "LANGFUSE_HOST",
     ]
 
-    normas = load_parsed_docs_prompt()
+    missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
+    if missing:
+        st.error(f"Missing required environment variables: {', '.join(missing)}")
+        raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+    return True
 
-    cbmgo_qa_prompt_tmpl_str = (
+check_env_vars()
+
+client = OpenAI(
+    api_key=os.getenv("LLM_API_KEY"),
+    base_url=os.getenv("LLM_BASE_URL"),
+)
+
+def get_chat_response(messages, model="gemini-2.5-pro-exp-03-25"):
+    all_norms = load_parsed_docs_prompt()
+
+    system_prompt = (
         "Você é um assistente virtual especializado em normas técnicas do CBMGO (Corpo de Bombeiros Militar do Estado de Goiás). "
         "Seu objetivo é fornecer informações precisas e relevantes sobre normas técnicas, procedimentos e melhores práticas. "
         "Você não deve fornecer informações pessoais ou opiniões. "
@@ -52,7 +40,7 @@ def get_gemini_response(messages, model="gemini-2.5-pro-exp-03-25"):
         "Você deve ser capaz de explicar conceitos complexos de forma simples e acessível, ajudando os usuários a entenderem melhor as normas e suas aplicações práticas. "
         "A transcrição de todas as normas são fornecidas abaixo.\n"
         "---------------------\n"
-        f"{normas}\n"
+        f"{all_norms}\n"
         "---------------------\n"
         "Com base nas informações de contexto e sem conhecimento prévio, "
         "responda à consulta sobre as normas técnicas do CBMGO (Corpo de Bombeiros Militar do Estado de Goiás). "
@@ -63,13 +51,13 @@ def get_gemini_response(messages, model="gemini-2.5-pro-exp-03-25"):
         "Caso não saiba a resposta, informe que não tem certeza e sugira que o usuário consulte um especialista ou fonte confiável.\n"
     )
 
-    system_instruction = types.Part.from_text(text=cbmgo_qa_prompt_tmpl_str)
+    messages_with_context = [{"role": "system", "content": system_prompt}, *messages]
 
-    stream = client.models.generate_content_stream(
+    # Create the streaming response
+    stream = client.chat.completions.create(
         model=model,
-        contents=formatted_contents,
-        config=types.GenerateContentConfig(
-            system_instruction=system_instruction,
-        ),
+        messages=messages_with_context,
+        stream=True,
     )
+
     return stream

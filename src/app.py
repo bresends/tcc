@@ -1,5 +1,5 @@
 import streamlit as st
-from chat import get_gemini_response
+from chat import get_chat_response
 
 def app():
     st.set_page_config(
@@ -34,10 +34,8 @@ def app():
         # Display assistant message with spinner inside the chat message
         with st.chat_message("assistant"):
             with st.spinner("💭 Processando..."):
-                stream = get_gemini_response(messages=st.session_state.messages, model="gemini-2.5-pro-exp-03-25")
-                full_response = st.write_stream(
-                    (chunk.text for chunk in stream if chunk.text)
-                )
+                stream = get_chat_response(messages=st.session_state.messages, model="gemini-2.0-flash-lite")
+                full_response = st.write_stream(stream)
 
         # Add the complete response to session state
         st.session_state.messages.append({"role": "assistant", "content": full_response})
