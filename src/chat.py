@@ -4,10 +4,12 @@ from dotenv import load_dotenv
 import os
 from google.genai import types
 from prompt_loader import load_parsed_docs_prompt
+from langfuse.decorators import observe, langfuse_context
+
+load_dotenv()
 
 def initialize_google_genai():
     try:
-        load_dotenv()
         api_key = os.getenv("GOOGLE_API_KEY")
         if not api_key:
             raise ValueError("API key not found in environment variables.")
