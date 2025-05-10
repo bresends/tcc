@@ -58,6 +58,8 @@ def get_chat_response(messages, model="gemini-2.5-pro-exp-03-25"):
         model=model,
         messages=messages_with_context,
         stream=True,
+        name="tcc-assistant",
+        stream_options={"include_usage": True},
     )
 
     return stream
