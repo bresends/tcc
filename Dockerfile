@@ -1,16 +1,38 @@
-FROM python:3.12-slim
+# Build stage
+FROM python:3.12-slim AS builder
 
 # Install uv package manager
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
-# Copy dependency specs first and install
+# Copy dependency specs first and install dependencies only
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --no-cache
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-install-project
 
-# Copy rest of the application
+# Copy source code and install project
 COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
+
+# Production stage
+FROM python:3.12-slim AS production
+
+# Create non-root user
+RUN groupadd --gid 1000 app && \
+    useradd --uid 1000 --gid app --shell /bin/bash --create-home app
+
+# Copy the virtual environment from builder stage
+COPY --from=builder --chown=app:app /app/.venv /app/.venv
+
+# Copy application code
+COPY --chown=app:app . /app
+
+WORKDIR /app
+
+# Switch to non-root user
+USER app
 
 # Expose Streamlit default port
 EXPOSE 8501
