@@ -34,7 +34,7 @@ def app():
         # Display assistant message with spinner inside the chat message
         with st.chat_message("assistant"):
             with st.spinner("💭 Processando..."):
-                stream = get_chat_response(messages=st.session_state.messages, model="gemini-2.5-pro-exp-03-25")
+                stream = get_chat_response(messages=st.session_state.messages, model="gemini-2.5-flash")
                 full_response = st.write_stream(stream)
 
         # Add the complete response to session state
