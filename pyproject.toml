@@ -13,10 +13,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = [
-    "docling>=2.31.0",
-    "pytest>=8.3.5",
-]
+dev = []
 
 [tool.pytest.ini_options]
 testpaths = ["src/tests"]
