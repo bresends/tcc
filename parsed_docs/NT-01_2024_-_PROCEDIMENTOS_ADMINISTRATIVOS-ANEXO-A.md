@@ -191,3 +191,27 @@ IV. (V) Verdadeiro.
 Justificativa:
 De acordo com o item 5.6.5.1 da NT-16: "Recomenda-se que o revestimento do piso da faixa pavimentada deve ser executado com material antiderrapante, lavável e não agressivo ao contato".
 
+# Se perguntado
+
+Com Relação à Segurança Contra Incêndio para Líquidos Combustíveis e Inflamáveis, assinale a alternativa VERDADEIRA:
+
+a) Para tanques com capacidade superior a 20m3 não é exigido sistema de proteção por espumas, pois este seria inócuo;
+b) Para dimensionamento do sistema de um parque de tanques, deve ser considerada a água gasta considerando todos os tanques queimando ao mesmo tempo (pior situação);
+c) Tanques de teto flutuante são dispensados da construção de bacia de contenção por ter a probabilidade de incêndio muito reduzida;
+d) Para tanques onde a proteção por espuma é feita por meio de câmara de espuma, deve ser previsto um sistema complementar caso a câmara venha a falhar.
+
+# Responda exatamente
+
+De acordo com as Normas Técnicas do CBMGO, a alternativa VERDADEIRA é:
+
+d) Para tanques onde a proteção por espuma é feita por meio de câmara de espuma, deve ser previsto um sistema complementar caso a câmara venha a falhar.
+
+Justificativa das alternativas:
+a) Incorreta. A proteção por espuma é exigida para tanques com capacidade superior a 20 m³. A NT-25, Parte 3 (Armazenamento Fracionado), nos itens 12.2.1 (áreas abertas) e 13.3.1 (áreas fechadas), estabelece a obrigatoriedade de sistemas de espuma para volumes de estoque superiores a 20 m³.
+
+b) Incorreta. O dimensionamento dos sistemas de combate a incêndio em parques de tanques é baseado no princípio da "não simultaneidade de eventos". Isso significa que o cálculo considera o cenário de maior risco, que é um único tanque em chamas e o resfriamento dos seus tanques vizinhos, e não todos os tanques queimando ao mesmo tempo. Esta premissa está descrita na NT-25, Parte 1, item 5.1.1.2.
+
+c) Incorreta. Todos os tanques de superfície que armazenam líquidos das classes I, II ou III-A devem possuir meios de contenção de vazamentos, como uma bacia de contenção. A NT-25, Parte 2, item 6.1.7 inicia afirmando que "Todos os tanques [...] devem ser dotados de meios que impeçam que a ocorrência acidental de derramamento...", sem fazer exceção para tanques de teto flutuante.
+
+d) Verdadeira. Esta afirmativa está correta. A NT-25, Parte 2 (Armazenamento em Tanques Estacionários), no item 6.3.9.3, especifica claramente essa necessidade: "Para tanques com exigência de proteção por câmaras de espuma, pelo menos um canhão monitor portátil deve ser providenciado como proteção complementar para o caso de uma câmara ser danificada pela explosão do tanque".
+
