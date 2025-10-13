@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norma-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: norma-pod
+  template:
+    metadata:
+      labels:
+        app: norma-pod
+        jobid: '{{JOB_ID}}'
+    spec:
+      imagePullSecrets:
+        - name: docker-registry-ssp
+      containers:
+        - name: norma-container
+          image: docker.ssp.go.gov.br/ssp/norma:{{COMMIT_ID}}
+          ports:
+            - name: http
+              containerPort: 8501
+          env:
+            - name: LLM_BASE_URL
+              value: "https://api.go.gov.br/ia/modelos-linguagem-natural/v2.0"
+          envFrom:
+            - secretRef:
+                name: config-secret
+            - configMapRef:
+                name: config-global
+          readinessProbe:
+            httpGet:
+              path: / #liberar trafego para o POD somente quando a app subir sem problemas (estiver tudo OK)
+              port: http
+          livenessProbe:
+            httpGet:
+              path: / #reiniciar o POD quando a app se tornar UNRESPONSIVE
+              port: http
