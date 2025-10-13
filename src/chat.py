@@ -3,7 +3,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from prompt_loader import load_parsed_docs_prompt
 from system_prompt import generate_system_prompt
-from langfuse.openai import OpenAI
+from ollama_client import OllamaClient
 
 load_dotenv()
 
@@ -11,9 +11,6 @@ def check_env_vars():
     REQUIRED_ENV_VARS = [
     "LLM_API_KEY",
     "LLM_BASE_URL",
-    "LANGFUSE_SECRET_KEY",
-    "LANGFUSE_PUBLIC_KEY",
-    "LANGFUSE_HOST",
     ]
 
     missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
@@ -24,23 +21,21 @@ def check_env_vars():
 
 check_env_vars()
 
-client = OpenAI(
+client = OllamaClient(
     api_key=os.getenv("LLM_API_KEY"),
     base_url=os.getenv("LLM_BASE_URL"),
 )
 
-def get_chat_response(messages, model="gemini-2.5-pro-exp-03-25"):
+def get_chat_response(messages, model="llama3.3:70b"):
     system_prompt = generate_system_prompt()
 
     messages_with_context = [{"role": "system", "content": system_prompt}, *messages]
 
-    # Create the streaming response
-    stream = client.chat.completions.create(
+    # Create the streaming response using Ollama client
+    stream = client.chat_completions_create(
         model=model,
         messages=messages_with_context,
         stream=True,
-        name="tcc-assistant",
-        stream_options={"include_usage": True},
     )
 
     return stream
