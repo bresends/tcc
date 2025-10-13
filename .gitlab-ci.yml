@@ -56,6 +56,16 @@ kubernetes-prod:
 
   function deployHomo() {
      mkdir ~/.kube && echo "$KUBE_CONFIG_HOMO" > ~/.kube/config
+     
+     # Criar/atualizar secret com todas as variáveis do GitLab
+     kubectl create secret generic norma-secret \
+       --from-literal=LLM_API_KEY="$LLM_API_KEY" \
+       --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
+       --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
+       --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \
+       --dry-run=client -o yaml | kubectl apply -f -
+     
+     # Aplicar deployment
      cat ./kube/deployment.yaml | sed "s/{{COMMIT_ID}}/${CI_COMMIT_SHA:0:8}/g" | sed "s/{{JOB_ID}}/$CI_JOB_ID/g" > deployment-temp.yaml
      kubectl apply -f deployment-temp.yaml
      kubectl apply -f ./kube/service.yaml
@@ -65,6 +75,16 @@ kubernetes-prod:
 
   function deployProd() {
      mkdir ~/.kube && echo "$KUBE_CONFIG_PROD" > ~/.kube/config
+     
+     # Criar/atualizar secret com todas as variáveis do GitLab
+     kubectl create secret generic norma-secret \
+       --from-literal=LLM_API_KEY="$LLM_API_KEY" \
+       --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
+       --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
+       --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \
+       --dry-run=client -o yaml | kubectl apply -f -
+     
+     # Aplicar deployment
      cat ./kube/deployment.yaml | sed "s/{{COMMIT_ID}}/${CI_COMMIT_SHA:0:8}/g" | sed "s/{{JOB_ID}}/$CI_JOB_ID/g" > deployment-temp.yaml
      kubectl apply -f deployment-temp.yaml
      kubectl apply -f ./kube/service.yaml

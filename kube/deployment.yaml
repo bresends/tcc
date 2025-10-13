@@ -26,7 +26,7 @@ spec:
               value: "https://api.go.gov.br/ia/modelos-linguagem-natural/v2.0"
           envFrom:
             - secretRef:
-                name: config-secret
+                name: norma-secret
             - configMapRef:
                 name: config-global
           readinessProbe:
