@@ -9,8 +9,9 @@ load_dotenv()
 
 def check_env_vars():
     REQUIRED_ENV_VARS = [
-    "LLM_API_KEY",
     "LLM_BASE_URL",
+    "OAUTH_CLIENT_ID",
+    "OAUTH_CLIENT_SECRET",
     ]
 
     missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
@@ -22,7 +23,6 @@ def check_env_vars():
 check_env_vars()
 
 client = OllamaClient(
-    api_key=os.getenv("LLM_API_KEY"),
     base_url=os.getenv("LLM_BASE_URL"),
 )
 

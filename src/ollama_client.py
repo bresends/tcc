@@ -3,14 +3,30 @@ import os
 from typing import Any, Dict, Iterator
 
 import requests
+try:
+    from .auth_client import get_access_token
+except ImportError:
+    from auth_client import get_access_token
 
 
 class OllamaClient:
-    def __init__(self, base_url: str, api_key: str):
+    def __init__(self, base_url: str, api_key: str = None):
         self.base_url = base_url.rstrip("/")
-        self.api_key = api_key
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
+        self.api_key = api_key  # Fallback static token
+        
+    def _get_headers(self) -> Dict[str, str]:
+        """Get headers with current access token"""
+        try:
+            # Try to get OAuth2 token first
+            token = get_access_token()
+        except Exception:
+            # Fallback to static API key if OAuth fails
+            if not self.api_key:
+                raise ValueError("No OAuth2 credentials configured and no fallback API key provided")
+            token = self.api_key
+        
+        return {
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Accept": "application/json",
         }
@@ -41,7 +57,8 @@ class OllamaClient:
             },
         }
 
-        response = requests.post(url, headers=self.headers, json=data, stream=stream)
+        headers = self._get_headers()
+        response = requests.post(url, headers=headers, json=data, stream=stream)
         response.raise_for_status()
 
         if stream:
