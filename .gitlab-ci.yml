@@ -17,15 +17,27 @@ docker:
     - docker tag $APP_NAME $CI_REGISTRY/ssp/$APP_NAME:${CI_COMMIT_SHA:0:8}
     - docker push $CI_REGISTRY/ssp/$APP_NAME
 
-kubernetes-homo:
+kubernetes-homo-only-main:
   image: dtzar/helm-kubectl
   environment:
     name: homologacao
   stage: kubernetes-homo
   only:
-    - homo
+    - main
   script:
     - deployHomo
+
+kubernetes-homo-except-main:
+  image: dtzar/helm-kubectl
+  environment:
+    name: homologacao
+  stage: kubernetes-homo
+  except:
+    - main 
+  script:
+    - deployHomo
+
+# PROD
 
 kubernetes-prod:
   image: dtzar/helm-kubectl
