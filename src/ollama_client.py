@@ -19,12 +19,12 @@ class OllamaClient:
         try:
             # Try to get OAuth2 token first
             token = get_access_token()
-        except Exception:
+        except Exception as e:
             # Fallback to static API key if OAuth fails
             if not self.api_key:
-                raise ValueError("No OAuth2 credentials configured and no fallback API key provided")
+                raise ValueError(f"No OAuth2 credentials configured and no fallback API key provided. OAuth error: {str(e)}")
             token = self.api_key
-        
+
         return {
             "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
