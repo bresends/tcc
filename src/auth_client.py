@@ -95,15 +95,15 @@ class OAuth2Client:
 
 def create_oauth_client() -> OAuth2Client:
     """Create OAuth2 client from environment variables"""
-    client_id = os.getenv('OAUTH_CLIENT_ID')
-    client_secret = os.getenv('OAUTH_CLIENT_SECRET')
-    token_endpoint = os.getenv('OAUTH_TOKEN_ENDPOINT', 'https://api.go.gov.br/token')
-    
+    client_id = os.getenv('NORMA_OAUTH_CLIENT_ID')
+    client_secret = os.getenv('NORMA_OAUTH_CLIENT_SECRET')
+    token_endpoint = os.getenv('NORMA_OAUTH_TOKEN_ENDPOINT', 'https://api.go.gov.br/token')
+
     if not client_id or not client_secret:
         raise ValueError(
-            "Missing OAuth2 credentials. Please set OAUTH_CLIENT_ID and OAUTH_CLIENT_SECRET environment variables."
+            "Missing OAuth2 credentials. Please set NORMA_OAUTH_CLIENT_ID and NORMA_OAUTH_CLIENT_SECRET environment variables."
         )
-    
+
     return OAuth2Client(client_id, client_secret, token_endpoint)
 
 

@@ -56,12 +56,12 @@ kubernetes-prod:
 
   function deployHomo() {
      mkdir ~/.kube && echo "$KUBE_CONFIG_HOMO" > ~/.kube/config
-     
+
      # Criar/atualizar secret com todas as variáveis do GitLab
      kubectl create secret generic norma-secret \
-       --from-literal=OAUTH_CLIENT_ID="$OAUTH_CLIENT_ID" \
-       --from-literal=OAUTH_CLIENT_SECRET="$OAUTH_CLIENT_SECRET" \
-       --from-literal=OAUTH_TOKEN_ENDPOINT="$OAUTH_TOKEN_ENDPOINT" \
+       --from-literal=NORMA_OAUTH_CLIENT_ID="$NORMA_OAUTH_CLIENT_ID" \
+       --from-literal=NORMA_OAUTH_CLIENT_SECRET="$NORMA_OAUTH_CLIENT_SECRET" \
+       --from-literal=NORMA_OAUTH_TOKEN_ENDPOINT="$NORMA_OAUTH_TOKEN_ENDPOINT" \
        --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
        --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
        --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \
@@ -77,12 +77,12 @@ kubernetes-prod:
 
   function deployProd() {
      mkdir ~/.kube && echo "$KUBE_CONFIG_PROD" > ~/.kube/config
-     
+
      # Criar/atualizar secret com todas as variáveis do GitLab
      kubectl create secret generic norma-secret \
-       --from-literal=OAUTH_CLIENT_ID="$OAUTH_CLIENT_ID" \
-       --from-literal=OAUTH_CLIENT_SECRET="$OAUTH_CLIENT_SECRET" \
-       --from-literal=OAUTH_TOKEN_ENDPOINT="$OAUTH_TOKEN_ENDPOINT" \
+       --from-literal=NORMA_OAUTH_CLIENT_ID="$NORMA_OAUTH_CLIENT_ID" \
+       --from-literal=NORMA_OAUTH_CLIENT_SECRET="$NORMA_OAUTH_CLIENT_SECRET" \
+       --from-literal=NORMA_OAUTH_TOKEN_ENDPOINT="$NORMA_OAUTH_TOKEN_ENDPOINT" \
        --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
        --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
        --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \

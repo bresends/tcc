@@ -10,8 +10,8 @@ load_dotenv()
 def check_env_vars():
     REQUIRED_ENV_VARS = [
     "LLM_BASE_URL",
-    "OAUTH_CLIENT_ID",
-    "OAUTH_CLIENT_SECRET",
+    "NORMA_OAUTH_CLIENT_ID",
+    "NORMA_OAUTH_CLIENT_SECRET",
     ]
 
     missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
