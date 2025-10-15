@@ -21,6 +21,6 @@ spec:
               service:
                 name: norma-service
                 port:
-                  number: 80
+                  number: 8501
             path: /
             pathType: ImplementationSpecific
