@@ -8,10 +8,13 @@ dependencies = [
     "python-dotenv>=1.1.0",
     "requests>=2.31.0",
     "streamlit>=1.45.0",
+    "openai>=1.0.0",
 ]
 
 [dependency-groups]
-dev = []
+dev = [
+    "docling>=2.57.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["src/tests"]

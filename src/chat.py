@@ -1,17 +1,16 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from prompt_loader import load_parsed_docs_prompt
-from system_prompt import generate_system_prompt
-from ollama_client import OllamaClient
+from prompt_loader import load_specific_norms
+from system_prompt import generate_system_prompt_with_norms
+from gemini_client import GeminiClient
+from router import NormRouter
 
 load_dotenv()
 
 def check_env_vars():
     REQUIRED_ENV_VARS = [
-    "LLM_BASE_URL",
-    "NORMA_OAUTH_CLIENT_ID",
-    "NORMA_OAUTH_CLIENT_SECRET",
+        "GEMINI_API_KEY",
     ]
 
     missing = [var for var in REQUIRED_ENV_VARS if not os.getenv(var)]
@@ -22,16 +21,33 @@ def check_env_vars():
 
 check_env_vars()
 
-client = OllamaClient(
-    base_url=os.getenv("LLM_BASE_URL"),
+client = GeminiClient(
+    api_key=os.getenv("GEMINI_API_KEY"),
 )
 
-def get_chat_response(messages, model="llama3.3:70b"):
-    system_prompt = generate_system_prompt()
+router = NormRouter()
+
+def get_chat_response(messages, model="gemini-2.5-flash"):
+    """
+    Two-stage RAG pipeline:
+    1. Route query to relevant norms (using Gemini 1.5 Flash)
+    2. Generate response with only relevant norms (using Gemini 2.5 Flash)
+    """
+    # Get user's last message
+    user_question = messages[-1]["content"] if messages else ""
+
+    # Stage 1: Route to relevant norms
+    relevant_norms = router.route_query(user_question, max_norms=2)
+
+    print(f"🧭 Routed to norms: {relevant_norms}")
+
+    # Stage 2: Load only relevant norms and generate response
+    relevant_docs = load_specific_norms(relevant_norms)
+    system_prompt = generate_system_prompt_with_norms(relevant_docs)
 
     messages_with_context = [{"role": "system", "content": system_prompt}, *messages]
 
-    # Create the streaming response using Ollama client
+    # Create the streaming response using Gemini client
     stream = client.chat_completions_create(
         model=model,
         messages=messages_with_context,
