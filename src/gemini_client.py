@@ -1,9 +1,9 @@
 """
-Gemini client using OpenAI-compatible API.
+Gemini client using OpenAI-compatible API with Langfuse observability.
 """
 import os
 from typing import Iterator
-from openai import OpenAI
+from langfuse.openai import OpenAI
 
 
 class GeminiClient:
@@ -31,25 +31,37 @@ class GeminiClient:
         model: str,
         messages: list,
         stream: bool = True,
+        name: str = None,
+        metadata: dict = None,
         **kwargs
     ) -> Iterator[str]:
         """
-        Create chat completion using Gemini API.
+        Create chat completion using Gemini API with Langfuse tracing.
 
         Args:
             model: Model name (e.g., "gemini-2.0-flash-exp")
             messages: List of message dicts with 'role' and 'content'
             stream: Whether to stream the response
+            name: Optional name for the Langfuse trace (for grouping)
+            metadata: Optional metadata dict for Langfuse tracking
             **kwargs: Additional parameters (ignored for compatibility)
 
         Yields:
             Response content chunks if streaming, otherwise full response
         """
-        response = self.client.chat.completions.create(
-            model=model,
-            messages=messages,
-            stream=stream
-        )
+        # Build request params with optional Langfuse metadata
+        params = {
+            "model": model,
+            "messages": messages,
+            "stream": stream
+        }
+
+        if name:
+            params["name"] = name
+        if metadata:
+            params["metadata"] = metadata
+
+        response = self.client.chat.completions.create(**params)
 
         if stream:
             for chunk in response:

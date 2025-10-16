@@ -111,7 +111,13 @@ RESPOSTA:"""
         for chunk in self.client.chat_completions_create(
             model="gemini-2.5-flash-lite",
             messages=messages,
-            stream=True
+            stream=True,
+            name="query-routing",
+            metadata={
+                "stage": "routing",
+                "query": user_question,
+                "routing_type": "llm_semantic"
+            }
         ):
             response_chunks.append(chunk)
 

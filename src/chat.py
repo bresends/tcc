@@ -30,14 +30,14 @@ router = NormRouter()
 def get_chat_response(messages, model="gemini-2.5-flash"):
     """
     Two-stage RAG pipeline:
-    1. Route query to relevant norms (using Gemini 1.5 Flash)
+    1. Route query to relevant norms (using Gemini Flash-Lite)
     2. Generate response with only relevant norms (using Gemini 2.5 Flash)
     """
     # Get user's last message
     user_question = messages[-1]["content"] if messages else ""
 
-    # Stage 1: Route to relevant norms
-    relevant_norms = router.route_query(user_question, max_norms=2)
+    # Stage 1: Route to relevant norms (with Langfuse tracking via router)
+    relevant_norms = router.route_query(user_question, max_norms=4)
 
     print(f"🧭 Routed to norms: {relevant_norms}")
 
@@ -47,11 +47,19 @@ def get_chat_response(messages, model="gemini-2.5-flash"):
 
     messages_with_context = [{"role": "system", "content": system_prompt}, *messages]
 
-    # Create the streaming response using Gemini client
+    # Create the streaming response using Gemini client with Langfuse metadata
     stream = client.chat_completions_create(
         model=model,
         messages=messages_with_context,
         stream=True,
+        name="answer-generation",
+        metadata={
+            "stage": "generation",
+            "query": user_question,
+            "selected_norms": [n.split('_')[1] for n in relevant_norms],
+            "num_norms": len(relevant_norms),
+            "model": model
+        }
     )
 
     return stream
