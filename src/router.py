@@ -9,8 +9,10 @@ from dotenv import load_dotenv
 
 try:
     from .gemini_client import GeminiClient
+    from .keyword_index import KeywordIndex
 except ImportError:
     from gemini_client import GeminiClient
+    from keyword_index import KeywordIndex
 
 # Load .env from project root
 load_dotenv(Path(__file__).parent.parent / ".env")
@@ -31,6 +33,7 @@ class NormRouter:
             self.norms = json.load(f)
 
         self.client = GeminiClient(api_key=api_key or os.getenv("GEMINI_API_KEY"))
+        self.keyword_index = KeywordIndex(metadata_path=index_path)
 
     def _build_routing_prompt(self, user_question: str) -> str:
         """Build prompt for routing decision with enhanced metadata."""
@@ -89,20 +92,19 @@ RESPOSTA:"""
 
         return prompt
 
-    def route_query(self, user_question: str, max_norms: int = 3) -> List[str]:
+    def route_query(self, user_question: str, max_norms: int = 4) -> List[str]:
         """
-        Route user question to relevant norms.
+        Route user question to relevant norms using hybrid search (LLM + BM25).
 
         Args:
             user_question: User's question in Portuguese
-            max_norms: Maximum number of norms to return
+            max_norms: Maximum number of norms to return (default: 4 for 2 LLM + 2 keyword)
 
         Returns:
             List of norm filenames (e.g., ["NT_01_2025-Procedimentos...md"])
         """
+        # Stage 1: LLM semantic routing (get top 2)
         routing_prompt = self._build_routing_prompt(user_question)
-
-        # Use Gemini 2.5 Flash-Lite for routing (faster, cheaper)
         messages = [{"role": "user", "content": routing_prompt}]
 
         response_chunks = []
@@ -114,23 +116,34 @@ RESPOSTA:"""
             response_chunks.append(chunk)
 
         response = "".join(response_chunks).strip()
-
-        # Parse response to extract norm IDs
-        norm_ids = self._parse_norm_ids(response)
-
-        # Limit to max_norms
-        norm_ids = norm_ids[:max_norms]
+        norm_ids = self._parse_norm_ids(response)[:2]  # Top 2 from LLM
 
         # Map IDs to filenames
         id_to_filename = {n['id']: n['filename'] for n in self.norms}
-        filenames = [id_to_filename[nid] for nid in norm_ids if nid in id_to_filename]
+        llm_filenames = [id_to_filename[nid] for nid in norm_ids if nid in id_to_filename]
+
+        # Stage 2: Keyword search (get top 2)
+        keyword_filenames = self.keyword_index.search(user_question, top_k=2)
+
+        # Combine and deduplicate (preserving order: LLM first, then keyword)
+        combined = llm_filenames.copy()
+        for filename in keyword_filenames:
+            if filename not in combined:
+                combined.append(filename)
+
+        # Limit to max_norms
+        combined = combined[:max_norms]
 
         # Fallback if no valid norms found
-        if not filenames:
-            # Default to NT_01 (Procedimentos Administrativos)
-            filenames = [n['filename'] for n in self.norms if n['id'] == 'NT_01'][:1]
+        if not combined:
+            combined = [n['filename'] for n in self.norms if n['id'] == 'NT_01'][:1]
 
-        return filenames
+        print(f"\n🎯 Hybrid routing results:")
+        print(f"   LLM selected: {', '.join([f.split('_')[1] for f in llm_filenames])}")
+        print(f"   Keyword selected: {', '.join([f.split('_')[1] for f in keyword_filenames])}")
+        print(f"   Final (deduplicated): {', '.join([f.split('_')[1] for f in combined])}")
+
+        return combined
 
     def _parse_norm_ids(self, response: str) -> List[str]:
         """
