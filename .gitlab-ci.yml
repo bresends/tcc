@@ -59,6 +59,7 @@ kubernetes-prod:
 
      # Criar/atualizar secret com todas as variáveis do GitLab
      kubectl create secret generic norma-secret \
+       --from-literal=GEMINI_API_KEY="$GEMINI_API_KEY" \
        --from-literal=NORMA_OAUTH_CLIENT_ID="$NORMA_OAUTH_CLIENT_ID" \
        --from-literal=NORMA_OAUTH_CLIENT_SECRET="$NORMA_OAUTH_CLIENT_SECRET" \
        --from-literal=NORMA_OAUTH_TOKEN_ENDPOINT="$NORMA_OAUTH_TOKEN_ENDPOINT" \
@@ -80,6 +81,7 @@ kubernetes-prod:
 
      # Criar/atualizar secret com todas as variáveis do GitLab
      kubectl create secret generic norma-secret \
+       --from-literal=GEMINI_API_KEY="$GEMINI_API_KEY" \
        --from-literal=NORMA_OAUTH_CLIENT_ID="$NORMA_OAUTH_CLIENT_ID" \
        --from-literal=NORMA_OAUTH_CLIENT_SECRET="$NORMA_OAUTH_CLIENT_SECRET" \
        --from-literal=NORMA_OAUTH_TOKEN_ENDPOINT="$NORMA_OAUTH_TOKEN_ENDPOINT" \
