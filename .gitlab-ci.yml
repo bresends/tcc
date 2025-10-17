@@ -33,7 +33,7 @@ kubernetes-homo-except-main:
     name: homologacao
   stage: kubernetes-homo
   except:
-    - main 
+    - main
   script:
     - deployHomo
 
@@ -66,6 +66,8 @@ kubernetes-prod:
        --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
        --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
        --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \
+       --from-literal=STREAMLIT_USERNAME="$STREAMLIT_USERNAME" \
+       --from-literal=STREAMLIT_PASSWORD_HASH="$STREAMLIT_PASSWORD_HASH" \
        --dry-run=client -o yaml | kubectl apply -f -
      
      # Aplicar deployment
@@ -88,6 +90,8 @@ kubernetes-prod:
        --from-literal=LANGFUSE_SECRET_KEY="$LANGFUSE_SECRET_KEY" \
        --from-literal=LANGFUSE_PUBLIC_KEY="$LANGFUSE_PUBLIC_KEY" \
        --from-literal=LANGFUSE_HOST="$LANGFUSE_HOST" \
+       --from-literal=STREAMLIT_USERNAME="$STREAMLIT_USERNAME" \
+       --from-literal=STREAMLIT_PASSWORD_HASH="$STREAMLIT_PASSWORD_HASH" \
        --dry-run=client -o yaml | kubectl apply -f -
      
      # Aplicar deployment
