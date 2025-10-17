@@ -1,10 +1,12 @@
 """
 Query router for selecting relevant norms using Gemini Flash.
 """
+
 import json
 import os
 from pathlib import Path
 from typing import List
+
 from dotenv import load_dotenv
 
 try:
@@ -29,7 +31,7 @@ class NormRouter:
             index_path: Path to norm metadata JSON
             api_key: Gemini API key (optional, uses GEMINI_API_KEY env var)
         """
-        with open(index_path, 'r', encoding='utf-8') as f:
+        with open(index_path, "r", encoding="utf-8") as f:
             self.norms = json.load(f)
 
         self.client = GeminiClient(api_key=api_key or os.getenv("GEMINI_API_KEY"))
@@ -43,22 +45,22 @@ class NormRouter:
             desc = f"- {norm['id']}: {norm['topic']}"
 
             # Add sections if available
-            if norm.get('sections'):
-                sections = ", ".join(norm['sections'][:3])
+            if norm.get("sections"):
+                sections = ", ".join(norm["sections"][:3])
                 desc += f"\n  Seções: {sections}"
 
             # Add table hints
-            if norm.get('tables'):
+            if norm.get("tables"):
                 desc += f"\n  {norm['tables'][0]}"
 
             # Add requirements hints
-            if norm.get('requirements'):
-                req = ", ".join(str(r) for r in norm['requirements'][:2])
+            if norm.get("requirements"):
+                req = ", ".join(str(r) for r in norm["requirements"][:2])
                 desc += f"\n  Requisitos: {req}"
 
             # Add key keywords
-            if norm.get('keywords'):
-                keywords = ", ".join(norm['keywords'][:5])
+            if norm.get("keywords"):
+                keywords = ", ".join(norm["keywords"][:5])
                 desc += f"\n  Palavras-chave: {keywords}"
 
             norm_list.append(desc)
@@ -74,7 +76,7 @@ NORMAS DISPONÍVEIS:
 {norms_text}
 
 TAREFA:
-Identifique quais normas são relevantes para responder a pergunta do usuário.
+Com base no seu conhecimento e com as informações sobre as normas identifique quais normas são relevantes para responder a pergunta do usuário.
 Retorne APENAS os IDs das normas (ex: NT_01, NT_15) separados por vírgula.
 
 REGRAS:
@@ -83,10 +85,10 @@ REGRAS:
 - Para perguntas sobre chuveiros automáticos/sprinklers: NT_23
 - Para perguntas sobre hidrantes: NT_22
 - Para perguntas sobre piscinas: NT_16
-- Retorne até 3 normas mais relevantes
+- Retorne até 2 normas mais relevantes
 
 FORMATO DE RESPOSTA:
-NT_XX, NT_YY, NT_ZZ
+NT_XX, NT_YY
 
 RESPOSTA:"""
 
@@ -116,8 +118,8 @@ RESPOSTA:"""
             metadata={
                 "stage": "routing",
                 "query": user_question,
-                "routing_type": "llm_semantic"
-            }
+                "routing_type": "llm_semantic",
+            },
         ):
             response_chunks.append(chunk)
 
@@ -125,8 +127,10 @@ RESPOSTA:"""
         norm_ids = self._parse_norm_ids(response)[:2]  # Top 2 from LLM
 
         # Map IDs to filenames
-        id_to_filename = {n['id']: n['filename'] for n in self.norms}
-        llm_filenames = [id_to_filename[nid] for nid in norm_ids if nid in id_to_filename]
+        id_to_filename = {n["id"]: n["filename"] for n in self.norms}
+        llm_filenames = [
+            id_to_filename[nid] for nid in norm_ids if nid in id_to_filename
+        ]
 
         # Stage 2: Keyword search (get top 2)
         keyword_filenames = self.keyword_index.search(user_question, top_k=2)
@@ -142,12 +146,16 @@ RESPOSTA:"""
 
         # Fallback if no valid norms found
         if not combined:
-            combined = [n['filename'] for n in self.norms if n['id'] == 'NT_01'][:1]
+            combined = [n["filename"] for n in self.norms if n["id"] == "NT_01"][:1]
 
-        print(f"\n🎯 Hybrid routing results:")
+        print("\n🎯 Hybrid routing results:")
         print(f"   LLM selected: {', '.join([f.split('_')[1] for f in llm_filenames])}")
-        print(f"   Keyword selected: {', '.join([f.split('_')[1] for f in keyword_filenames])}")
-        print(f"   Final (deduplicated): {', '.join([f.split('_')[1] for f in combined])}")
+        print(
+            f"   Keyword selected: {', '.join([f.split('_')[1] for f in keyword_filenames])}"
+        )
+        print(
+            f"   Final (deduplicated): {', '.join([f.split('_')[1] for f in combined])}"
+        )
 
         return combined
 
@@ -164,7 +172,7 @@ RESPOSTA:"""
         import re
 
         # Extract all NT_XX patterns
-        matches = re.findall(r'NT_\d+', response.upper())
+        matches = re.findall(r"NT_\d+", response.upper())
 
         # Remove duplicates while preserving order
         seen = set()
