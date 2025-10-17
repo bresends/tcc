@@ -18,6 +18,10 @@ dev = [
     "docling>=2.57.0",
 ]
 
+[tool.uv]
+# Don't install dev dependencies by default (use --group dev when needed)
+default-groups = []
+
 [tool.pytest.ini_options]
 testpaths = ["src/tests"]
 python_files = "test_*.py"

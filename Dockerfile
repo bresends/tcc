@@ -10,14 +10,14 @@ WORKDIR /app
 # Copy dependency files first
 COPY uv.lock pyproject.toml ./
 
-# Install dependencies
-RUN uv sync --frozen --no-install-project --no-editable
+# Install dependencies (excluding dev dependencies like docling)
+RUN uv sync --frozen --no-install-project --no-editable --no-dev
 
 # Copy the project into the intermediate image
 COPY . /app
 
-# Sync the project
-RUN uv sync --frozen --no-editable
+# Sync the project (excluding dev dependencies)
+RUN uv sync --frozen --no-editable --no-dev
 
 # Final image
 FROM python:3.12-slim
